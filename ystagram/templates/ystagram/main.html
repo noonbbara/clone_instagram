@@ -97,24 +97,63 @@
     position: relative;
     padding: 10px;
 }
+
+.modal_title{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+.modal_title_side{
+    margin: 5px;
+    flex: 0 0 40px;
+    text-align: center;
+}
+
+.modal_image_upload{
+    outline: 2px dashed black ;
+    outline-offset:-10px;
+    transition: all .15s ease-in-out;
+    width: 798px;
+    height: 548px;
+    text-align: center;
+    line-height: 548px;
+}
+
+.modal_image_upload_content{
+    outline: 2px dashed black ;
+    outline-offset:-10px;
+    text-align: center;
+    transition: all .15s ease-in-out;
+    width:500px;
+    height: 548px;
+}
+
+.modal_image_content{
+    display: flex;
+    flex-direction: row;
+}
+
+.modal_content_write{
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid rgba(0, 0, 0, 0.18);;
+}
+
+.feed_content_textarea{
+    resize: none;
+    width: 294px;
+    border: none;
+}
 </style>
 
     <title>Hello, world!</title>
 </head>
 
-
-
 <body>
-
-
-
-{#<div style="color: black">#}
-{#    {% for feed in feeds %}#}
-{#        <p>{{ feed.content }}</p>#}
-{#        <p>{{ feed.user_id }}</p>#}
-{#        <p>{{ feed.like_count }}</p>#}
-{#    {% endfor %}#}
-{#</div>#}
 <nav class="navbar navbar-expand-lg navbar-light bg-light" style="position: fixed; width: 100%; height: 60px">
     <div class="container-fluid" style="justify-content: space-between; flex-wrap: nowrap; min-width: 1000px">
         <a class="navbar-brand" href="#"><img style="width: 100px"
@@ -207,27 +246,64 @@
     </div>
 </div>
 
-    <div id="modal_add_feed" class="modal_overlay">
-        <div class="modal_window">
-            <div style="display: flex; flex-direction: row; justify-content: space-between">
-                <div style="width: 30px">
+{#첫 번째 모달#}
+<div id="modal_add_feed" class="modal_overlay">
+    <div class="modal_window">
+        <div style="display: flex; flex-direction: row; justify-content: space-between">
+            <div style="width: 30px">
 
-                </div>
-                <div>
-                    새 이미지 업로드
-                </div>
-                <div style="width: 30px">
-                    <span class="material-symbols-outlined">close</span>
-                </div>
             </div>
-            <div class="img_upload_space" style="background-color: tomato; width: 780px; height: 520px; margin-top: 20px">
-
+            <div>
+                새 이미지 업로드
+            </div>
+            <div style="width: 30px">
+                <span class="material-symbols-outlined">close</span>
             </div>
         </div>
+        <div class="img_upload_space" style="background-color: tomato; width: 780px; height: 520px; margin-top: 20px">
+
+        </div>
     </div>
+</div>
+
+{#두 번째 모달#}
+<div id="modal_add_feed_content" class="modal modal_overlay_content">
+    <div class="modal_window">
+        <div class="modal_title">
+            <div class="modal_title_side"></div>
+            <div style="margin: 5px"> 새 게시물 </div>
+            <div class="modal_title_side">
+                <span id="close_modal" class="close_modal material-icons-outlined" style="font-size: 30px">
+                    close
+                </span>
+            </div>
+        </div>
+        <div class="modal_image_content">
+            <div id="input_image" class="modal_image_upload_content">
+
+            </div>
+            <div class="modal_content_write">
+                <div class="feed_name">
+                    <div class="profile_box">
+                        <img id="input_profile_image" class="profile" src="https://mblogthumb-phinf.pstatic.net/20160625_210/bjy0524_1466833747375ihpeN_PNG/%B7%BF%C3%F7%B8%C1%B0%ED%B6%F3%C0%CC%BE%F0%BB%E7%C1%F8.png?type=w800">
+                    </div>
+                    <span id="input_user_id" class="feed_name_txt"> <b>noonbbara</b> </span>
+                </div>
+                <div style="height: 440px">
+                    <textarea id="input_content" class="feed_content_textarea form-control col-sm-5" rows="10" placeholder="설명을 입력하세요..."></textarea>
+                </div>
+                <div style="width: 100%; text-align: center">
+                    <button id="button_write_feed" type="button" class="btn btn-primary" style="width: 100%"> 공유하기</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
 
 <!-- Optional JavaScript; choose one of the two! -->
 <script>
+{#네비바에서 +버튼 클릭하는 기능#}
     $('#nav_add_box').click(function (){
         $('.modal_overlay').css({
             display : 'flex'
@@ -236,7 +312,7 @@
             overflow : 'hidden'
         });
     });
-
+{#이미지 업로드하는 모달창 기능#}
     $('.img_upload_space')
         .on("dragover", dragOver)
         .on("dragleave", dragOver)
@@ -259,9 +335,31 @@
         }
     }
 
-    function uploadFiles(e) {
+    function uploadFiles(e){
         e.stopPropagation();
         e.preventDefault();
+        
+        e.dataTransfer = e.originalEvent.dataTransfer; 
+        var files =  e.dataTransfer.files;
+
+        if (files[0].type.match(/image.*/)) {
+            $('#modal_add_feed_content').css({
+                display : 'flex'
+            });
+            $('.modal_image_upload_content').css({
+                "background-image": "url(" + window.URL.createObjectURL(files[0]) + ")",
+                "outline": "none",
+                "background-size": "contain",
+                "background-repeat" : "no-repeat",
+                "background-position" : "center"
+            });
+            $('#modal_add_feed').css({
+                display: 'none'
+            })
+        }else{
+            alert('이미지가 아닙니다.');
+            return;
+        }
     }
 
 </script>
