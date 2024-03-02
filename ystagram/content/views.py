@@ -1,10 +1,12 @@
 from django.shortcuts import render
-from rest_framework.views import APIView, Response
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from .models import Feed
 import os
 from django.conf import settings
 from ystagram.settings import MEDIA_ROOT
 from uuid import uuid4
+from user.models import User
 # Create your views here.
 class Main(APIView):
     def get(self, request):
@@ -13,7 +15,19 @@ class Main(APIView):
 
         for feed in feed_list:
             print(feed.content)
-        return render(request, "ystagram/main.html", context=dict(feeds=feed_list))
+
+        print("로그인한 사용자 :", request.session['email'])
+        email = request.session['email']
+
+        if email is None:
+            return render(request, "user/login.html")
+
+        user = User.objects.filter(email=email).first()
+        if user is None:
+            return render(request, "user/login.html")
+
+        user = User.objects.filter(email=email).first()
+        return render(request, "ystagram/main.html", context=dict(feeds=feed_list, user=user))
 
 
 class UploadFeed(APIView):
