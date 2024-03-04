@@ -16,8 +16,7 @@ class Main(APIView):
         for feed in feed_list:
             print(feed.content)
 
-        print("로그인한 사용자 :", request.session['email'])
-        email = request.session['email']
+        email = request.session.get('email', None)
 
         if email is None:
             return render(request, "user/login.html")
@@ -49,3 +48,7 @@ class UploadFeed(APIView):
         Feed.objects.create(image=image, content=content, user_id=user_id, profile_image=profile_image, like_count=0)
 
         return Response(status=200)
+
+class Profile(APIView):
+    def get(self, request):
+        return render(request, 'content/profile.html')
